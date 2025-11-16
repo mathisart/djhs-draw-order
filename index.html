@@ -2,104 +2,63 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>上台順序抽籤系統（DJHS）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont,
-        "Microsoft JhengHei", sans-serif;
-      background: radial-gradient(circle at top, #e3f2fd, #e0f2f1);
-      min-height: 100vh;
-    }
-  </style>
+  <title>上台順序抽籤系統</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="flex items-center justify-center py-8">
-  <div class="w-full max-w-xl mx-4">
-    <div class="bg-white/90 shadow-xl rounded-2xl p-8 backdrop-blur">
+<body>
+  <div class="page">
+    <div class="card">
       <!-- 標題區 -->
-      <div class="text-center mb-8">
-        <h1 id="title" class="text-2xl font-bold text-sky-700 mb-1">
-          上台順序抽籤系統
-        </h1>
-        <p id="subtitle" class="text-sky-500 text-sm">
-          請選擇年級、班級與座號進行抽籤
-        </p>
-      </div>
+      <header class="header">
+        <h1 id="pageTitle">上台順序抽籤系統</h1>
+        <p id="pageSubtitle">請選擇年級、輸入班級與座號進行抽籤</p>
+      </header>
 
-      <!-- 輸入欄位 -->
-      <div class="space-y-5">
+      <!-- 表單區 -->
+      <main>
         <!-- 年級 -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">
-            年級
-          </label>
-          <select
-            id="gradeSelect"
-            class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
-          >
-            <option value="">載入中...</option>
+        <div class="field">
+          <label for="gradeSelect">年級</label>
+          <select id="gradeSelect">
+            <option value="">請選擇年級</option>
           </select>
         </div>
 
         <!-- 班級 -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">
-            班級
-          </label>
-          <select
-            id="classSelect"
-            class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
-            disabled
-          >
-            <option value="">請先選年級</option>
+        <div class="field">
+          <label for="classSelect">班級</label>
+          <select id="classSelect">
+            <option value="">請先選擇年級</option>
           </select>
         </div>
 
         <!-- 座號 -->
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">
-            座號
-          </label>
-          <select
-            id="seatSelect"
-            class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
-            disabled
-          >
-            <option value="">請先選班級</option>
+        <div class="field">
+          <label for="seatSelect">座號</label>
+          <select id="seatSelect">
+            <option value="">請先選擇班級</option>
           </select>
         </div>
-      </div>
 
-      <!-- 抽籤按鈕 -->
-      <div class="mt-8">
-        <button
-          id="queryBtn"
-          class="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 py-3.5 text-white text-lg font-semibold shadow-lg shadow-sky-300 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          抽籤 / 查看結果
-        </button>
-      </div>
+        <!-- 按鈕區 -->
+        <div class="buttons">
+          <button id="btnDraw" class="btn-main">抽籤 / 查看結果</button>
+          <button id="btnClear" class="btn-clear">🔄 清空欄位</button>
+        </div>
 
-      <!-- 結果區 -->
-      <div
-        id="resultBox"
-        class="mt-6 hidden rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 whitespace-pre-line"
-      ></div>
+        <!-- 結果顯示區 -->
+        <section id="resultBox" class="result">
+          <!-- 抽籤結果會由 JS 填入 -->
+        </section>
+      </main>
 
-      <!-- 錯誤訊息 -->
-      <div
-        id="errorBox"
-        class="mt-4 hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
-      ></div>
+      <footer class="footer">
+        <p>本系統僅供校內比賽使用，如有問題請洽承辦老師。</p>
+      </footer>
     </div>
   </div>
 
-  <!-- 設定檔（Web App URL）-->
-  <script src="config.js"></script>
-
-  <!-- 主程式 -->
-  <script src="app.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>

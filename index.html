@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>上台順序查詢系統</title>
+  <title>上台順序抽籤系統</title>
   <style>
     body {
       box-sizing: border-box;
@@ -153,8 +153,8 @@
     <!-- 標題 -->
     <div class="header-space">
       <div class="header-box">
-        <h1 id="pageTitle">上台順序查詢系統</h1>
-        <p id="pageSubtitle">請選擇年級、輸入班級與座號</p>
+        <h1 id="pageTitle">上台順序抽籤系統</h1>
+        <p id="pageSubtitle">請選擇年級、輸入班級與座號進行抽籤</p>
       </div>
     </div>
 
@@ -171,7 +171,7 @@
       </div>
       <div class="input-group">
         <label for="className">班級</label>
-        <input id="className" class="input-control" type="text" placeholder="例：七年二班、八年一班">
+        <input id="className" class="input-control" type="text" placeholder="請輸入與報名名單相同的班級名稱，例如：七年二班">
       </div>
       <div class="input-group">
         <label for="seatNo">座號</label>
@@ -181,7 +181,7 @@
 
     <!-- 按鈕 -->
     <div class="button-section">
-      <button class="query-button" id="queryButton">查詢 / 抽出上台順序</button>
+      <button class="query-button" id="queryButton">抽籤 / 查看結果</button>
     </div>
 
     <!-- 結果 -->
@@ -189,7 +189,7 @@
   </div>
 
   <script>
-    // ✅ 這裡是你的 Google Apps Script Web App URL
+    // 你的 Google Apps Script Web App URL（/exec）
     const API_URL = 'https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpYetKBMerQnEuOid-uPqBycFayIi_Yp23EFnKnf_pI1h9yQM8/exec';
 
     const btn = document.getElementById('queryButton');
@@ -208,33 +208,31 @@
       const seatNo = document.getElementById('seatNo').value.trim();
 
       if (!grade || !className || !seatNo) {
-        showMessage('請完整輸入年級、班級與座號再查詢。', 'error');
+        showMessage('請完整輸入年級、班級與座號再進行抽籤。', 'error');
         return;
       }
 
       btn.disabled = true;
-      showMessage('查詢中，請稍候…', null);
+      showMessage('抽籤中，請稍候…', null);
 
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ grade, className, seatNo })
-        });
+        // ✅ 改用 GET，和你在網址列測試的方式一樣
+        const params = new URLSearchParams({ grade, className, seatNo });
+        const res = await fetch(`${API_URL}?${params.toString()}`);
 
         const data = await res.json();
 
         if (!data || data.found === false) {
-          showMessage('查無此學生的報名資料，請確認年級、班級與座號是否正確。', 'error');
+          showMessage('沒有找到這位同學的報名資料，請確認年級、班級與座號是否正確。', 'error');
         } else {
           showMessage(
-            `${data.className} ${data.seatNo} 號 ${data.name} 同學：\n你目前的上台順序是：第 ${data.order} 位。`,
+            `${data.className} ${data.seatNo} 號 ${data.name} 同學：\n你抽到的上台順序是：第 ${data.order} 位。`,
             'success'
           );
         }
       } catch (err) {
         console.error(err);
-        showMessage('查詢時發生錯誤，請稍後再試或洽承辦老師。', 'error');
+        showMessage('抽籤時發生錯誤，請稍後再試或洽承辦老師。', 'error');
       } finally {
         btn.disabled = false;
       }

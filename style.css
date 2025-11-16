@@ -1,0 +1,247 @@
+/* 整體背景 */
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+  font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+}
+
+/* 主容器 */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* 頂部區塊 */
+.header {
+  background: linear-gradient(135deg, #ff6b9d 0%, #a29bfe 100%);
+  color: #ffffff;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.header p {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* 表單區塊 */
+.form-section {
+  padding: 32px 24px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ff6b9d;
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.15);
+}
+
+.form-control:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
+/* 按鈕 */
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff6b9d 0%, #fd79a8 100%);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* 結果區 */
+.result-section {
+  margin-top: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef7ff 100%);
+  border-radius: 12px;
+  border: 2px solid #fbb6ce;
+  display: none;
+}
+
+.result-section.show {
+  display: block;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.result-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #ff6b9d;
+  margin: 0;
+}
+
+.result-text {
+  font-size: 18px;
+  color: #374151;
+  margin: 8px 0 0 0;
+}
+
+/* 學生資訊卡片 */
+.student-info {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+.student-info h3 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.info-item {
+  text-align: center;
+  padding: 8px;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  border-radius: 6px;
+  border: 1px solid rgba(253, 203, 110, 0.3);
+}
+
+.info-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* 頁尾 */
+.footer {
+  padding: 20px 24px;
+  text-align: center;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef7ff 100%);
+  color: #8b5a83;
+  font-size: 14px;
+  border-top: 1px solid #fbb6ce;
+}
+
+/* 小螢幕調整 */
+@media (max-width: 640px) {
+  body {
+    padding: 12px;
+  }
+
+  .header {
+    padding: 24px 20px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .form-section {
+    padding: 24px 20px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .result-number {
+    font-size: 36px;
+  }
+}

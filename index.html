@@ -1,371 +1,105 @@
-<!doctype html>
-<html lang="zh-TW">
+<!DOCTYPE html>
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
+  <title>上台順序抽籤系統（DJHS）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>上台順序抽籤系統</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-      background: linear-gradient(135deg, #e3f2fd 0%, #f8fbff 50%, #e1f5fe 100%);
+      font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont,
+        "Microsoft JhengHei", sans-serif;
+      background: radial-gradient(circle at top, #e3f2fd, #e0f2f1);
       min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-    .container {
-      max-width: 400px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding: 0 20px 24px;
-      display: flex;
-      flex-direction: column;
-    }
-    .header-space {
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .header-box {
-      width: 100%;
-      min-height: 60px;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #1565c0;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
-      padding: 8px 12px;
-      text-align: center;
-    }
-    #pageTitle {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 0;
-    }
-    #pageSubtitle {
-      font-size: 13px;
-      margin: 4px 0 0;
-      color: #5c6f82;
-    }
-    .form-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .input-group {
-      position: relative;
-    }
-    label {
-      font-size: 14px;
-      margin-bottom: 4px;
-      display: block;
-      color: #1565c0;
-    }
-    .input-control {
-      width: 100%;
-      height: 48px;
-      border: 2px solid #bbdefb;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 0 16px;
-      font-size: 16px;
-      color: #0d47a1;
-      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
-      outline: none;
-    }
-    .input-control:focus {
-      border-color: #64b5f6;
-      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.18);
-    }
-    .input-control::placeholder {
-      color: #90a4ae;
-      font-size: 14px;
-    }
-    select.input-control {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: linear-gradient(45deg, transparent 50%, #64b5f6 50%),
-                        linear-gradient(135deg, #64b5f6 50%, transparent 50%);
-      background-position: calc(100% - 20px) calc(50% - 3px),
-                           calc(100% - 15px) calc(50% - 3px);
-      background-size: 5px 5px, 5px 5px;
-      background-repeat: no-repeat;
-    }
-    .button-section {
-      margin-bottom: 4px;
-    }
-    .query-button {
-      width: 100%;
-      height: 56px;
-      background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
-      border: none;
-      border-radius: 16px;
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
-      transition: all 0.2s ease;
-      font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-    }
-    .query-button:disabled {
-      opacity: 0.7;
-      cursor: default;
-      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
-    }
-    .query-button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
-    }
-    .query-button:active:not(:disabled) {
-      transform: translateY(0);
-      box-shadow: 0 3px 12px rgba(25, 118, 210, 0.3);
-    }
-    .teacher-link {
-      text-align: right;
-      font-size: 12px;
-      color: #1565c0;
-      cursor: pointer;
-      opacity: 0.7;
-      margin-bottom: 12px;
-    }
-    .teacher-link:hover {
-      opacity: 1;
-      text-decoration: underline;
-    }
-    .result-box {
-      min-height: 70px;
-      border-radius: 12px;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
-      font-size: 14px;
-      color: #37474f;
-      margin-bottom: 24px;
-      display: none;
-      line-height: 1.6;
-      white-space: pre-line;
-      border-left: 4px solid transparent;
-    }
-    .result-box.success {
-      border-left-color: #43a047;
-      color: #1b5e20;
-    }
-    .result-box.error {
-      border-left-color: #e53935;
-      color: #b71c1c;
-    }
-    @keyframes pop {
-      0%   { transform: scale(0.9); opacity: 0; }
-      60%  { transform: scale(1.03); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .result-box.pop {
-      animation: pop 0.35s ease-out;
-    }
-    @media (max-width: 360px) {
-      .container { padding: 0 16px 20px; }
-      .query-button { height: 52px; font-size: 17px; }
-      .input-control { height: 46px; font-size: 15px; }
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <!-- 標題 -->
-    <div class="header-space">
-      <div class="header-box">
-        <h1 id="pageTitle">上台順序抽籤系統</h1>
-        <p id="pageSubtitle">請選擇年級、輸入班級與座號進行抽籤</p>
+<body class="flex items-center justify-center py-8">
+  <div class="w-full max-w-xl mx-4">
+    <div class="bg-white/90 shadow-xl rounded-2xl p-8 backdrop-blur">
+      <!-- 標題區 -->
+      <div class="text-center mb-8">
+        <h1 id="title" class="text-2xl font-bold text-sky-700 mb-1">
+          上台順序抽籤系統
+        </h1>
+        <p id="subtitle" class="text-sky-500 text-sm">
+          請選擇年級、班級與座號進行抽籤
+        </p>
       </div>
-    </div>
 
-    <!-- 表單 -->
-    <div class="form-section">
-      <div class="input-group">
-        <label for="grade">年級</label>
-        <select id="grade" class="input-control">
-          <option value="">請先選擇年級</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="className">班級</label>
-        <select id="className" class="input-control" disabled>
-          <option value="">請先選擇年級</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label for="seatNo">座號</label>
-        <input id="seatNo" class="input-control" type="number" min="1" max="60" placeholder="例：1、2、3…">
-      </div>
-    </div>
+      <!-- 輸入欄位 -->
+      <div class="space-y-5">
+        <!-- 年級 -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            年級
+          </label>
+          <select
+            id="gradeSelect"
+            class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
+          >
+            <option value="">載入中...</option>
+          </select>
+        </div>
 
-    <!-- 按鈕 -->
-    <div class="button-section">
-      <button class="query-button" id="queryButton">抽籤 / 查看結果</button>
-    </div>
-    <div class="teacher-link" id="teacherLink">老師重抽（需輸入密碼）</div>
+        <!-- 班級 -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            班級
+          </label>
+          <select
+            id="classSelect"
+            class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
+            disabled
+          >
+            <option value="">請先選年級</option>
+          </select>
+        </div>
 
-    <!-- 結果 -->
-    <div id="resultBox" class="result-box"></div>
+        <!-- 座號 -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            座號
+          </label>
+          <select
+            id="seatSelect"
+            class="w-full rounded-xl border-slate-200 bg-slate-50 px-3 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
+            disabled
+          >
+            <option value="">請先選班級</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 抽籤按鈕 -->
+      <div class="mt-8">
+        <button
+          id="queryBtn"
+          class="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-sky-600 py-3.5 text-white text-lg font-semibold shadow-lg shadow-sky-300 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          抽籤 / 查看結果
+        </button>
+      </div>
+
+      <!-- 結果區 -->
+      <div
+        id="resultBox"
+        class="mt-6 hidden rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 whitespace-pre-line"
+      ></div>
+
+      <!-- 錯誤訊息 -->
+      <div
+        id="errorBox"
+        class="mt-4 hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+      ></div>
+    </div>
   </div>
 
-  <script>
-    // 你的 Google Apps Script Web App URL
-    const API_URL =
-      'https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpYetKBMerQnEuOid-uPqBycFayIi_Yp23EFnKnf_pI1h9yQM8/exec';
+  <!-- 設定檔（Web App URL）-->
+  <script src="config.js"></script>
 
-    const TEACHER_KEY = 'djhs114'; // 與 Code.gs 的 ADMIN_KEY 保持一致
-
-    const btn = document.getElementById('queryButton');
-    const resultBox = document.getElementById('resultBox');
-    const gradeSelect = document.getElementById('grade');
-    const classSelect = document.getElementById('className');
-    const seatInput = document.getElementById('seatNo');
-    const teacherLink = document.getElementById('teacherLink');
-    const pageTitle = document.getElementById('pageTitle');
-    const pageSubtitle = document.getElementById('pageSubtitle');
-
-    let gradeMeta = [];
-    let forceMode = false; // 老師是否要強制重抽
-
-    function showMessage(msg, type) {
-      resultBox.style.display = 'block';
-      resultBox.textContent = msg;
-      resultBox.classList.remove('success', 'error', 'pop');
-      if (type) resultBox.classList.add(type);
-      // 重新觸發動畫
-      void resultBox.offsetWidth;
-      resultBox.classList.add('pop');
-    }
-
-    // 初始化：向後端讀取標題 + 年級 / 班級資訊
-    async function loadConfig() {
-      try {
-        const res = await fetch(`${API_URL}?mode=config`);
-        const cfg = await res.json();
-
-        if (cfg.title) document.title = cfg.title;
-        if (cfg.title) pageTitle.textContent = cfg.title;
-        if (cfg.subtitle) pageSubtitle.textContent = cfg.subtitle;
-
-        gradeMeta = cfg.grades || [];
-
-        // 年級下拉選單
-        gradeSelect.innerHTML = '<option value="">請先選擇年級</option>';
-        gradeMeta.forEach(g => {
-          const opt = document.createElement('option');
-          opt.value = g.id;
-          opt.textContent = g.label;
-          gradeSelect.appendChild(opt);
-        });
-      } catch (err) {
-        console.error(err);
-        showMessage('初始化設定時發生錯誤，請稍後再試。', 'error');
-      }
-    }
-
-    // 當年級改變 → 填入班級清單 & 座號上限
-    gradeSelect.addEventListener('change', () => {
-      const gradeId = gradeSelect.value;
-      const g = gradeMeta.find(item => item.id === gradeId);
-
-      classSelect.innerHTML = '';
-      if (!g) {
-        classSelect.disabled = true;
-        classSelect.innerHTML = '<option value="">請先選擇年級</option>';
-        seatInput.max = 60;
-        return;
-      }
-
-      classSelect.disabled = false;
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = '請選擇班級';
-      classSelect.appendChild(placeholder);
-
-      (g.classes || []).forEach(cls => {
-        const opt = document.createElement('option');
-        opt.value = cls;
-        opt.textContent = cls;
-        classSelect.appendChild(opt);
-      });
-
-      // 座號上限
-      seatInput.max = g.maxSeat || 60;
-      seatInput.value = '';
-    });
-
-    // 老師重抽：下一次按鈕會帶 force=1
-    teacherLink.addEventListener('click', () => {
-      const code = prompt('請輸入老師重抽密碼：');
-      if (!code) return;
-      if (code === TEACHER_KEY) {
-        forceMode = true;
-        alert('已啟用老師重抽模式：下一次按「抽籤 / 查看結果」將重新抽號碼。');
-      } else {
-        alert('密碼錯誤。');
-      }
-    });
-
-    // 抽籤 / 查詢
-    btn.addEventListener('click', async () => {
-      const grade = gradeSelect.value.trim();
-      const className = classSelect.value.trim();
-      const seatNo = seatInput.value.trim();
-
-      if (!grade || !className || !seatNo) {
-        showMessage('請完整選擇年級、班級並輸入座號，再進行抽籤。', 'error');
-        return;
-      }
-
-      btn.disabled = true;
-      showMessage('抽籤中，請稍候…', null);
-
-      try {
-        const params = new URLSearchParams({
-          grade,
-          className,
-          seatNo
-        });
-
-        if (forceMode) {
-          params.append('force', '1');
-          params.append('source', '老師端重抽');
-        }
-
-        const res = await fetch(`${API_URL}?${params.toString()}`);
-        const data = await res.json();
-
-        if (!data || data.found === false) {
-          showMessage('沒有找到這位同學的報名資料，請確認年級、班級與座號是否正確。', 'error');
-        } else {
-          const msg =
-            `${data.className} ${data.seatNo} 號 ${data.name} 同學：\n` +
-            `你抽到的上台順序是：第 ${data.order} 位。`;
-          showMessage(msg, 'success');
-        }
-      } catch (err) {
-        console.error(err);
-        showMessage('抽籤時發生錯誤，請稍後再試或洽承辦老師。', 'error');
-      } finally {
-        btn.disabled = false;
-        forceMode = false; // 用完老師重抽模式就關掉
-      }
-    });
-
-    // 網頁載入時初始化
-    loadConfig();
-  </script>
+  <!-- 主程式 -->
+  <script src="app.js"></script>
 </body>
 </html>

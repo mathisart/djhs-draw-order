@@ -19,7 +19,7 @@
       max-width: 400px;
       margin: 0 auto;
       min-height: 100vh;
-      padding: 0 20px;
+      padding: 0 20px 24px;
       display: flex;
       flex-direction: column;
     }
@@ -90,8 +90,19 @@
       color: #90a4ae;
       font-size: 14px;
     }
+    select.input-control {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #64b5f6 50%),
+                        linear-gradient(135deg, #64b5f6 50%, transparent 50%);
+      background-position: calc(100% - 20px) calc(50% - 3px),
+                           calc(100% - 15px) calc(50% - 3px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
     .button-section {
-      margin-bottom: 16px;
+      margin-bottom: 4px;
     }
     .query-button {
       width: 100%;
@@ -120,6 +131,18 @@
       transform: translateY(0);
       box-shadow: 0 3px 12px rgba(25, 118, 210, 0.3);
     }
+    .teacher-link {
+      text-align: right;
+      font-size: 12px;
+      color: #1565c0;
+      cursor: pointer;
+      opacity: 0.7;
+      margin-bottom: 12px;
+    }
+    .teacher-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
     .result-box {
       min-height: 70px;
       border-radius: 12px;
@@ -132,17 +155,26 @@
       display: none;
       line-height: 1.6;
       white-space: pre-line;
+      border-left: 4px solid transparent;
     }
     .result-box.success {
-      border-left: 4px solid #43a047;
+      border-left-color: #43a047;
       color: #1b5e20;
     }
     .result-box.error {
-      border-left: 4px solid #e53935;
+      border-left-color: #e53935;
       color: #b71c1c;
     }
+    @keyframes pop {
+      0%   { transform: scale(0.9); opacity: 0; }
+      60%  { transform: scale(1.03); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .result-box.pop {
+      animation: pop 0.35s ease-out;
+    }
     @media (max-width: 360px) {
-      .container { padding: 0 16px; }
+      .container { padding: 0 16px 20px; }
       .query-button { height: 52px; font-size: 17px; }
       .input-control { height: 46px; font-size: 15px; }
     }
@@ -163,15 +195,14 @@
       <div class="input-group">
         <label for="grade">年級</label>
         <select id="grade" class="input-control">
-          <option value="">請選擇年級</option>
-          <option value="七年級">七年級</option>
-          <option value="八年級">八年級</option>
-          <option value="九年級">九年級</option>
+          <option value="">請先選擇年級</option>
         </select>
       </div>
       <div class="input-group">
         <label for="className">班級</label>
-        <input id="className" class="input-control" type="text" placeholder="請輸入與報名名單相同的班級名稱，例如：七年二班">
+        <select id="className" class="input-control" disabled>
+          <option value="">請先選擇年級</option>
+        </select>
       </div>
       <div class="input-group">
         <label for="seatNo">座號</label>
@@ -183,32 +214,118 @@
     <div class="button-section">
       <button class="query-button" id="queryButton">抽籤 / 查看結果</button>
     </div>
+    <div class="teacher-link" id="teacherLink">老師重抽（需輸入密碼）</div>
 
     <!-- 結果 -->
     <div id="resultBox" class="result-box"></div>
   </div>
 
   <script>
-    // 你的 Google Apps Script Web App URL（/exec）
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpYetKBMerQnEuOid-uPqBycFayIi_Yp23EFnKnf_pI1h9yQM8/exec';
+    // 你的 Google Apps Script Web App URL
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpYetKBMerQnEuOid-uPqBycFayIi_Yp23EFnKnf_pI1h9yQM8/exec';
+
+    const TEACHER_KEY = 'djhs114'; // 與 Code.gs 的 ADMIN_KEY 保持一致
 
     const btn = document.getElementById('queryButton');
     const resultBox = document.getElementById('resultBox');
+    const gradeSelect = document.getElementById('grade');
+    const classSelect = document.getElementById('className');
+    const seatInput = document.getElementById('seatNo');
+    const teacherLink = document.getElementById('teacherLink');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSubtitle = document.getElementById('pageSubtitle');
+
+    let gradeMeta = [];
+    let forceMode = false; // 老師是否要強制重抽
 
     function showMessage(msg, type) {
       resultBox.style.display = 'block';
       resultBox.textContent = msg;
-      resultBox.classList.remove('success', 'error');
+      resultBox.classList.remove('success', 'error', 'pop');
       if (type) resultBox.classList.add(type);
+      // 重新觸發動畫
+      void resultBox.offsetWidth;
+      resultBox.classList.add('pop');
     }
 
+    // 初始化：向後端讀取標題 + 年級 / 班級資訊
+    async function loadConfig() {
+      try {
+        const res = await fetch(`${API_URL}?mode=config`);
+        const cfg = await res.json();
+
+        if (cfg.title) document.title = cfg.title;
+        if (cfg.title) pageTitle.textContent = cfg.title;
+        if (cfg.subtitle) pageSubtitle.textContent = cfg.subtitle;
+
+        gradeMeta = cfg.grades || [];
+
+        // 年級下拉選單
+        gradeSelect.innerHTML = '<option value="">請先選擇年級</option>';
+        gradeMeta.forEach(g => {
+          const opt = document.createElement('option');
+          opt.value = g.id;
+          opt.textContent = g.label;
+          gradeSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error(err);
+        showMessage('初始化設定時發生錯誤，請稍後再試。', 'error');
+      }
+    }
+
+    // 當年級改變 → 填入班級清單 & 座號上限
+    gradeSelect.addEventListener('change', () => {
+      const gradeId = gradeSelect.value;
+      const g = gradeMeta.find(item => item.id === gradeId);
+
+      classSelect.innerHTML = '';
+      if (!g) {
+        classSelect.disabled = true;
+        classSelect.innerHTML = '<option value="">請先選擇年級</option>';
+        seatInput.max = 60;
+        return;
+      }
+
+      classSelect.disabled = false;
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '請選擇班級';
+      classSelect.appendChild(placeholder);
+
+      (g.classes || []).forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls;
+        opt.textContent = cls;
+        classSelect.appendChild(opt);
+      });
+
+      // 座號上限
+      seatInput.max = g.maxSeat || 60;
+      seatInput.value = '';
+    });
+
+    // 老師重抽：下一次按鈕會帶 force=1
+    teacherLink.addEventListener('click', () => {
+      const code = prompt('請輸入老師重抽密碼：');
+      if (!code) return;
+      if (code === TEACHER_KEY) {
+        forceMode = true;
+        alert('已啟用老師重抽模式：下一次按「抽籤 / 查看結果」將重新抽號碼。');
+      } else {
+        alert('密碼錯誤。');
+      }
+    });
+
+    // 抽籤 / 查詢
     btn.addEventListener('click', async () => {
-      const grade = document.getElementById('grade').value.trim();
-      const className = document.getElementById('className').value.trim();
-      const seatNo = document.getElementById('seatNo').value.trim();
+      const grade = gradeSelect.value.trim();
+      const className = classSelect.value.trim();
+      const seatNo = seatInput.value.trim();
 
       if (!grade || !className || !seatNo) {
-        showMessage('請完整輸入年級、班級與座號再進行抽籤。', 'error');
+        showMessage('請完整選擇年級、班級並輸入座號，再進行抽籤。', 'error');
         return;
       }
 
@@ -216,27 +333,39 @@
       showMessage('抽籤中，請稍候…', null);
 
       try {
-        // ✅ 改用 GET，和你在網址列測試的方式一樣
-        const params = new URLSearchParams({ grade, className, seatNo });
-        const res = await fetch(`${API_URL}?${params.toString()}`);
+        const params = new URLSearchParams({
+          grade,
+          className,
+          seatNo
+        });
 
+        if (forceMode) {
+          params.append('force', '1');
+          params.append('source', '老師端重抽');
+        }
+
+        const res = await fetch(`${API_URL}?${params.toString()}`);
         const data = await res.json();
 
         if (!data || data.found === false) {
           showMessage('沒有找到這位同學的報名資料，請確認年級、班級與座號是否正確。', 'error');
         } else {
-          showMessage(
-            `${data.className} ${data.seatNo} 號 ${data.name} 同學：\n你抽到的上台順序是：第 ${data.order} 位。`,
-            'success'
-          );
+          const msg =
+            `${data.className} ${data.seatNo} 號 ${data.name} 同學：\n` +
+            `你抽到的上台順序是：第 ${data.order} 位。`;
+          showMessage(msg, 'success');
         }
       } catch (err) {
         console.error(err);
         showMessage('抽籤時發生錯誤，請稍後再試或洽承辦老師。', 'error');
       } finally {
         btn.disabled = false;
+        forceMode = false; // 用完老師重抽模式就關掉
       }
     });
+
+    // 網頁載入時初始化
+    loadConfig();
   </script>
 </body>
 </html>

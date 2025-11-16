@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>上台順序查詢系統</title>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd 0%, #f8fbff 50%, #e1f5fe 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-space {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .header-box {
+      width: 100%;
+      min-height: 60px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #1565c0;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+      padding: 8px 12px;
+      text-align: center;
+    }
+    #pageTitle {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+    #pageSubtitle {
+      font-size: 13px;
+      margin: 4px 0 0;
+      color: #5c6f82;
+    }
+    .form-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .input-group {
+      position: relative;
+    }
+    label {
+      font-size: 14px;
+      margin-bottom: 4px;
+      display: block;
+      color: #1565c0;
+    }
+    .input-control {
+      width: 100%;
+      height: 48px;
+      border: 2px solid #bbdefb;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0 16px;
+      font-size: 16px;
+      color: #0d47a1;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+      outline: none;
+    }
+    .input-control:focus {
+      border-color: #64b5f6;
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.18);
+    }
+    .input-control::placeholder {
+      color: #90a4ae;
+      font-size: 14px;
+    }
+    .button-section {
+      margin-bottom: 16px;
+    }
+    .query-button {
+      width: 100%;
+      height: 56px;
+      background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+      transition: all 0.2s ease;
+      font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+    }
+    .query-button:disabled {
+      opacity: 0.7;
+      cursor: default;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+    }
+    .query-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+    }
+    .query-button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 3px 12px rgba(25, 118, 210, 0.3);
+    }
+    .result-box {
+      min-height: 70px;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+      font-size: 14px;
+      color: #37474f;
+      margin-bottom: 24px;
+      display: none;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .result-box.success {
+      border-left: 4px solid #43a047;
+      color: #1b5e20;
+    }
+    .result-box.error {
+      border-left: 4px solid #e53935;
+      color: #b71c1c;
+    }
+    @media (max-width: 360px) {
+      .container { padding: 0 16px; }
+      .query-button { height: 52px; font-size: 17px; }
+      .input-control { height: 46px; font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 標題 -->
+    <div class="header-space">
+      <div class="header-box">
+        <h1 id="pageTitle">上台順序查詢系統</h1>
+        <p id="pageSubtitle">請選擇年級、輸入班級與座號</p>
+      </div>
+    </div>
+
+    <!-- 表單 -->
+    <div class="form-section">
+      <div class="input-group">
+        <label for="grade">年級</label>
+        <select id="grade" class="input-control">
+          <option value="">請選擇年級</option>
+          <option value="七年級">七年級</option>
+          <option value="八年級">八年級</option>
+          <option value="九年級">九年級</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="className">班級</label>
+        <input id="className" class="input-control" type="text" placeholder="例：七年二班、八年一班">
+      </div>
+      <div class="input-group">
+        <label for="seatNo">座號</label>
+        <input id="seatNo" class="input-control" type="number" min="1" max="60" placeholder="例：1、2、3…">
+      </div>
+    </div>
+
+    <!-- 按鈕 -->
+    <div class="button-section">
+      <button class="query-button" id="queryButton">查詢 / 抽出上台順序</button>
+    </div>
+
+    <!-- 結果 -->
+    <div id="resultBox" class="result-box"></div>
+  </div>
+
+  <script>
+    // ✅ 這裡是你的 Google Apps Script Web App URL
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpYetKBMerQnEuOid-uPqBycFayIi_Yp23EFnKnf_pI1h9yQM8/exec';
+
+    const btn = document.getElementById('queryButton');
+    const resultBox = document.getElementById('resultBox');
+
+    function showMessage(msg, type) {
+      resultBox.style.display = 'block';
+      resultBox.textContent = msg;
+      resultBox.classList.remove('success', 'error');
+      if (type) resultBox.classList.add(type);
+    }
+
+    btn.addEventListener('click', async () => {
+      const grade = document.getElementById('grade').value.trim();
+      const className = document.getElementById('className').value.trim();
+      const seatNo = document.getElementById('seatNo').value.trim();
+
+      if (!grade || !className || !seatNo) {
+        showMessage('請完整輸入年級、班級與座號再查詢。', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      showMessage('查詢中，請稍候…', null);
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grade, className, seatNo })
+        });
+
+        const data = await res.json();
+
+        if (!data || data.found === false) {
+          showMessage('查無此學生的報名資料，請確認年級、班級與座號是否正確。', 'error');
+        } else {
+          showMessage(
+            `${data.className} ${data.seatNo} 號 ${data.name} 同學：\n你目前的上台順序是：第 ${data.order} 位。`,
+            'success'
+          );
+        }
+      } catch (err) {
+        console.error(err);
+        showMessage('查詢時發生錯誤，請稍後再試或洽承辦老師。', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

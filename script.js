@@ -15,6 +15,29 @@ const pageSubtitle = document.getElementById("pageSubtitle");
 const selGrade = document.getElementById("gradeSelect");
 const selClass = document.getElementById("classSelect");
 const selSeat = document.getElementById("seatSelect");
+seatSelect.addEventListener("change", async () => {
+  const grade = document.getElementById("gradeSelect").value;
+  const className = document.getElementById("classSelect").value;
+  const seatNo = seatSelect.value;
+
+  if (!grade || !className || !seatNo) return;
+
+  const url = `${WEB_APP_URL}?mode=info&grade=${grade}&className=${className}&seatNo=${seatNo}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      document.getElementById("studentName").value = data.name;
+    } else {
+      document.getElementById("studentName").value = "";
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 
 const btnDraw = document.getElementById("btnDraw");
 const btnClear = document.getElementById("btnClear");

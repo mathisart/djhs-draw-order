@@ -9,37 +9,15 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpY
  * 2. DOM 元素
  *************************************************/
 
-const pageTitle = document.getElementById("pageTitle");
+const pageTitle    = document.getElementById("pageTitle");
 const pageSubtitle = document.getElementById("pageSubtitle");
 
 const selGrade = document.getElementById("gradeSelect");
 const selClass = document.getElementById("classSelect");
-const selSeat = document.getElementById("seatSelect");
-seatSelect.addEventListener("change", async () => {
-  const grade = document.getElementById("gradeSelect").value;
-  const className = document.getElementById("classSelect").value;
-  const seatNo = seatSelect.value;
+const selSeat  = document.getElementById("seatSelect");
+const nameInput = document.getElementById("studentName"); // 顯示姓名的欄位（建議設 readonly）
 
-  if (!grade || !className || !seatNo) return;
-
-  const url = `${WEB_APP_URL}?mode=info&grade=${grade}&className=${className}&seatNo=${seatNo}`;
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.ok) {
-      document.getElementById("studentName").value = data.name;
-    } else {
-      document.getElementById("studentName").value = "";
-    }
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-
-const btnDraw = document.getElementById("btnDraw");
+const btnDraw  = document.getElementById("btnDraw");
 const btnClear = document.getElementById("btnClear");
 
 const resultBox = document.getElementById("resultBox");
@@ -64,7 +42,7 @@ async function initPage() {
     const data = await res.json();
 
     // 標題、副標題
-    if (data.title) pageTitle.textContent = data.title;
+    if (data.title)    pageTitle.textContent    = data.title;
     if (data.subtitle) pageSubtitle.textContent = data.subtitle;
 
     // 年級列表
@@ -86,7 +64,7 @@ function renderGradeOptions() {
 
   gradeMeta.forEach((g) => {
     const opt = document.createElement("option");
-    opt.value = g.id; // 例如 "7"
+    opt.value = g.id;             // 例如 "7"
     opt.textContent = `${g.label} 年級`; // 顯示：7 年級
     selGrade.appendChild(opt);
   });
@@ -101,7 +79,8 @@ function renderGradeOptions() {
 
 function resetClassAndSeat(classPlaceholderText) {
   selClass.innerHTML = `<option value="">${classPlaceholderText}</option>`;
-  selSeat.innerHTML = '<option value="">請先選擇班級</option>';
+  selSeat.innerHTML  = '<option value="">請先選擇班級</option>';
+  if (nameInput) nameInput.value = ""; // 重設時順便把姓名清掉
 }
 
 selGrade.addEventListener("change", () => {
@@ -127,22 +106,28 @@ selGrade.addEventListener("change", () => {
 
   // 同時重置座號
   selSeat.innerHTML = '<option value="">請先選擇班級</option>';
+  if (nameInput) nameInput.value = "";
 });
 
 selClass.addEventListener("change", async () => {
   const grade = selGrade.value;
-  const cls = selClass.value;
+  const cls   = selClass.value;
 
   if (!grade || !cls) {
     selSeat.innerHTML = '<option value="">請先選擇班級</option>';
+    if (nameInput) nameInput.value = "";
     return;
   }
 
+  if (nameInput) nameInput.value = "";
+
   try {
-    const url = `${WEB_APP_URL}?mode=seats&grade=${encodeURIComponent(
-      grade
-    )}&className=${encodeURIComponent(cls)}`;
-    const res = await fetch(url);
+    const url =
+      `${WEB_APP_URL}?mode=seats` +
+      `&grade=${encodeURIComponent(grade)}` +
+      `&className=${encodeURIComponent(cls)}`;
+
+    const res  = await fetch(url);
     const data = await res.json();
 
     if (!data.ok) {
@@ -172,13 +157,50 @@ selClass.addEventListener("change", async () => {
 });
 
 /*************************************************
+ * 4-1. 座號改變時，自動帶出姓名
+ *************************************************/
+
+selSeat.addEventListener("change", async () => {
+  const grade     = selGrade.value;
+  const className = selClass.value;
+  const seatNo    = selSeat.value;
+
+  if (!nameInput) return; // 沒放姓名欄就直接跳過
+
+  if (!grade || !className || !seatNo) {
+    nameInput.value = "";
+    return;
+  }
+
+  const url =
+    `${WEB_APP_URL}?mode=info` +
+    `&grade=${encodeURIComponent(grade)}` +
+    `&className=${encodeURIComponent(className)}` +
+    `&seatNo=${encodeURIComponent(seatNo)}`;
+
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      nameInput.value = data.name || "";
+    } else {
+      nameInput.value = "";
+    }
+  } catch (err) {
+    console.error(err);
+    nameInput.value = "";
+  }
+});
+
+/*************************************************
  * 5. 抽籤 / 查看結果
  *************************************************/
 
 btnDraw.addEventListener("click", async () => {
   const grade = selGrade.value;
-  const cls = selClass.value;
-  const seat = selSeat.value;
+  const cls   = selClass.value;
+  const seat  = selSeat.value;
 
   if (!grade || !cls || !seat) {
     alert("請先完整選擇年級、班級與座號！");
@@ -186,11 +208,12 @@ btnDraw.addEventListener("click", async () => {
   }
 
   try {
-    const url = `${WEB_APP_URL}?grade=${encodeURIComponent(
-      grade
-    )}&className=${encodeURIComponent(cls)}&seatNo=${encodeURIComponent(seat)}`;
+    const url =
+      `${WEB_APP_URL}?grade=${encodeURIComponent(grade)}` +
+      `&className=${encodeURIComponent(cls)}` +
+      `&seatNo=${encodeURIComponent(seat)}`;
 
-    const res = await fetch(url);
+    const res  = await fetch(url);
     const data = await res.json();
 
     resultBox.classList.remove("empty");
@@ -201,7 +224,7 @@ btnDraw.addEventListener("click", async () => {
       return;
     }
 
-    // 顯示抽籤結果
+    // 顯示抽籤結果（姓名用後端回傳的 data.name，比較安全）
     resultBox.innerHTML = `
       <p>
         ${grade} 年 ${cls} 班 ${seat} 號 ${data.name} 同學：<br>
@@ -218,12 +241,13 @@ btnDraw.addEventListener("click", async () => {
 });
 
 /*************************************************
- * 6. 🔄 清空欄位（僅清空選單，不清除結果）
+ * 6. 🔄 清空欄位（僅清空選單與姓名，不清除結果）
  *************************************************/
 
 btnClear.addEventListener("click", () => {
   selGrade.value = "";
   resetClassAndSeat("請先選擇年級");
+  if (nameInput) nameInput.value = "";
   // 結果區保留，老師可以回顧上一位同學的號碼
 });
 

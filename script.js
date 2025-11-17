@@ -1,238 +1,232 @@
 /*************************************************
- * 1. 基本設定：請把 WEB_APP_URL 換成你自己的網址
+ * 1. 基本設定：讀取 config.js 中的 WEB_APP_URL
  *************************************************/
-
-// 例：const WEB_APP_URL = "https://script.google.com/macros/s/xxxxxxx/exec";
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_ls62nLUz9rP0wWpYetKBMerQnEuOid-uPqBycFayIi_Yp23EFnKnf_pI1h9yQM8/exec";
+// WEB_APP_URL 在 config.js 中定義，這裡不需要重複宣告
 
 /*************************************************
- * 2. DOM 元素
+ * 2. DOM 元素 (注意新的 ID 和結構)
  *************************************************/
+const pageTitle = document.getElementById('pageTitle');
+const pageSubtitle = document.getElementById('pageSubtitle');
 
-const pageTitle = document.getElementById("pageTitle");
-const pageSubtitle = document.getElementById("pageSubtitle");
+const gradeSelect = document.getElementById('gradeSelect');
+const classSelect = document.getElementById('classSelect');
+const seatSelect = document.getElementById('seatSelect');
+const studentNameInput = document.getElementById('studentName'); // 新 ID
 
-const selGrade = document.getElementById("gradeSelect");
-const selClass = document.getElementById("classSelect");
-const selSeat = document.getElementById("seatSelect");
-const inputName = document.getElementById("nameDisplay"); // ✨ 已有：姓名輸入框參照
+const btnDraw = document.getElementById('btnDraw');
+const btnClear = document.getElementById('btnClear');
 
-const btnDraw = document.getElementById("btnDraw");
-const btnClear = document.getElementById("btnClear");
+const resultSection = document.getElementById('resultSection');
+const drawNumberDisplay = document.getElementById('drawNumber');
+const resultGradeDisplay = document.getElementById('resultGrade');
+const resultClassDisplay = document.getElementById('resultClass');
+const resultSeatDisplay = document.getElementById('resultSeat');
+const resultNameDisplay = document.getElementById('resultName');
+const footerText = document.getElementById('footerText');
 
-const resultBox = document.getElementById("resultBox");
+// --- 輔助函式 ---
 
-// 從後端拿到的年級資訊會暫存這裡
-let gradeMeta = [];
-
-/*************************************************
- * 3. 初始化：抓 config（標題 + 年級 / 班級）
- *************************************************/
-
-async function initPage() {
-  if (!WEB_APP_URL || WEB_APP_URL.indexOf("https://script.google.com") !== 0) {
-    resultBox.classList.remove("empty");
-    resultBox.innerHTML =
-      "<p style='color:#b91c1c;'>後端網址未設定，請先在 script.js 設定 WEB_APP_URL。</p>";
-    return;
-  }
-
-  try {
-    const res = await fetch(`${WEB_APP_URL}?mode=config`);
-    const data = await res.json();
-
-    // 標題、副標題
-    if (data.title) pageTitle.textContent = data.title;
-    if (data.subtitle) pageSubtitle.textContent = data.subtitle;
-
-    // 年級列表
-    gradeMeta = data.grades || [];
-    renderGradeOptions();
-    resultBox.classList.add("empty");
-    resultBox.innerHTML = "";
-  } catch (err) {
-    resultBox.classList.remove("empty");
-    resultBox.innerHTML =
-      "<p style='color:#b91c1c;'>初始化失敗，請稍後再試或洽承辦老師。<br>錯誤訊息：" +
-      err.message +
-      "</p>";
-  }
-}
-
-function renderGradeOptions() {
-  selGrade.innerHTML = '<option value="">請選擇年級</option>';
-
-  gradeMeta.forEach((g) => {
-    const opt = document.createElement("option");
-    opt.value = g.id; // 例如 "7"
-    opt.textContent = `${g.label} 年級`; // 顯示：7 年級
-    selGrade.appendChild(opt);
-  });
-
-  // 班級、座號先重置
-  resetClassAndSeat("請先選擇年級");
-}
-
-/*************************************************
- * 4. 連動：年級 → 班級 → 座號
- *************************************************/
-
-function resetClassAndSeat(classPlaceholderText) {
-  selClass.innerHTML = `<option value="">${classPlaceholderText}</option>`;
-  selSeat.innerHTML = '<option value="">請先選擇班級</option>';
-  inputName.value = ""; // ✨ 新增：清空姓名顯示
-}
-
-selGrade.addEventListener("change", () => {
-  const grade = selGrade.value;
-
-  if (!grade) {
-    resetClassAndSeat("請先選擇年級");
-    return;
-  }
-
-  const gInfo = gradeMeta.find((g) => g.id.toString() === grade.toString());
-  resetClassAndSeat("請選擇班級");
-
-  if (!gInfo || !Array.isArray(gInfo.classes)) return;
-
-  // 填班級下拉（1 班、2 班…）
-  gInfo.classes.forEach((c) => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = `${c} 班`;
-    selClass.appendChild(opt);
-  });
-
-  // 同時重置座號
-  selSeat.innerHTML = '<option value="">請先選擇班級</option>';
-});
-
-// 【已修改 selClass.addEventListener，用於載入座號和姓名數據】
-selClass.addEventListener("change", async () => {
-  const grade = selGrade.value;
-  const cls = selClass.value;
-  
-  // 清空姓名顯示
-  inputName.value = ""; 
-
-  if (!grade || !cls) {
-    selSeat.innerHTML = '<option value="">請先選擇班級</option>';
-    return;
-  }
-
-  try {
-    const url = `${WEB_APP_URL}?mode=seats&grade=${encodeURIComponent(
-      grade
-    )}&className=${encodeURIComponent(cls)}`;
-    const res = await fetch(url);
-    const data = await res.json();
+// 顯示結果區塊
+function showResult(number, grade, classNum, seatNum, name) {
+    drawNumberDisplay.textContent = number;
+    resultGradeDisplay.textContent = `${grade}年級`;
+    resultClassDisplay.textContent = `${classNum}班`;
+    resultSeatDisplay.textContent = `${seatNum}號`;
+    resultNameDisplay.textContent = name;
     
-    // 檢查 API 是否成功 (注意這裡檢查 data.students)
-    if (!data.ok || !data.students) { 
-      selSeat.innerHTML =
-        '<option value="">座號載入失敗，請稍後再試</option>';
-      return;
-    }
+    // 使用新的 show class 顯示結果區塊
+    resultSection.classList.add('show');
+}
 
-    const students = data.students || [];
-    if (students.length === 0) {
-      selSeat.innerHTML =
-        '<option value="">此班尚未設定座號名單</option>';
-      return;
-    }
+// 隱藏結果區塊
+function hideResult() {
+    resultSection.classList.remove('show');
+}
 
-    selSeat.innerHTML = '<option value="">請選擇座號</option>';
-    
-    // 遍歷學生資料，將姓名儲存在 option 的 data 屬性中
-    students.forEach((s) => {
-      const opt = document.createElement("option");
-      opt.value = s.seat;
-      opt.textContent = `${s.seat} 號`;
-      opt.dataset.name = s.name; // ✨ 關鍵：將姓名儲存在 data 屬性
-      selSeat.appendChild(opt);
+// 渲染選單選項 (通用函式)
+function renderOptions(selectElement, options, placeholderText) {
+    selectElement.innerHTML = `<option value="">${placeholderText}</option>`;
+    options.forEach(opt => {
+        const option = document.createElement('option');
+        if (typeof opt === 'string') {
+            option.value = opt;
+            option.textContent = `${opt} ${placeholderText.includes('年級') ? '年級' : '班'}`;
+        } else {
+            // 處理座號/姓名的物件選項 { seat: number, name: string }
+            option.value = opt.seat;
+            option.textContent = `${opt.seat}號`;
+            option.dataset.name = opt.name;
+        }
+        selectElement.appendChild(option);
     });
+    selectElement.disabled = false;
+}
 
-  } catch (err) {
-    selSeat.innerHTML =
-      '<option value="">座號載入失敗，請稍後再試</option>';
-  }
-});
+// 鎖定所有控制項並重置
+function disableControls() {
+    classSelect.innerHTML = '<option value="">請先選擇年級</option>';
+    seatSelect.innerHTML = '<option value="">請先選擇班級</option>';
+    studentNameInput.value = '選擇座號後自動帶出';
+    classSelect.disabled = true;
+    seatSelect.disabled = true;
+    btnDraw.disabled = true;
+}
 
-
-// 【✨ 新增：座號變動時自動帶入姓名】
-selSeat.addEventListener("change", () => {
-  const selectedOption = selSeat.options[selSeat.selectedIndex];
-
-  if (selectedOption && selectedOption.value) {
-    // 從 data-name 屬性讀取姓名
-    const name = selectedOption.dataset.name || ""; 
-    inputName.value = name;
-  } else {
-    inputName.value = "";
-  }
-});
-
-
-/*************************************************
- * 5. 抽籤 / 查看結果
- *************************************************/
-
-btnDraw.addEventListener("click", async () => {
-  const grade = selGrade.value;
-  const cls = selClass.value;
-  const seat = selSeat.value;
-
-  if (!grade || !cls || !seat) {
-    alert("請先完整選擇年級、班級與座號！");
-    return;
-  }
-
-  try {
-    const url = `${WEB_APP_URL}?grade=${encodeURIComponent(
-      grade
-    )}&className=${encodeURIComponent(cls)}&seatNo=${encodeURIComponent(seat)}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    resultBox.classList.remove("empty");
-
-    if (!data.found) {
-      resultBox.innerHTML =
-        "<p style='color:#b91c1c;'>找不到這位同學的資料，請確認是否輸入正確。</p>";
-      return;
+// --- 3. 初始化：抓 config (標題 + 年級 / 班級) ---
+async function initPage() {
+    // 檢查 WEB_APP_URL 是否存在 (從 config.js 載入)
+    if (typeof WEB_APP_URL === 'undefined' || WEB_APP_URL.indexOf("https://script.google.com") !== 0) {
+        console.error("WEB_APP_URL 未設定或格式錯誤，請檢查 config.js。");
+        return;
     }
 
-    // 顯示抽籤結果
-    resultBox.innerHTML = `
-      <p>
-        ${grade} 年 ${cls} 班 ${seat} 號 ${data.name} 同學：<br>
-        你抽到的上台順序是：第 <strong>${data.order}</strong> 位。
-      </p>
-    `;
-  } catch (err) {
-    resultBox.classList.remove("empty");
-    resultBox.innerHTML =
-      "<p style='color:#b91c1c;'>查詢時發生錯誤，請稍後再試或洽承辦老師。<br>錯誤訊息：" +
-      err.message +
-      "</p>";
-  }
+    try {
+        const res = await fetch(`${WEB_APP_URL}?mode=config`);
+        const data = await res.json();
+        
+        // 更新標題/註腳
+        if (data.title) pageTitle.textContent = data.title;
+        if (data.subtitle) pageSubtitle.textContent = data.subtitle;
+        if (data.footer_text) footerText.textContent = data.footer_text;
+
+        // 渲染年級選項
+        const grades = data.grades.map(g => g.id);
+        renderOptions(gradeSelect, grades, '請選擇年級');
+        
+        disableControls();
+    } catch (err) {
+        alert("初始化失敗，無法連接到 Google 試算表後端。\n錯誤: " + err.message);
+        disableControls();
+    }
+}
+
+// --- 4. 連動：年級 → 班級 → 座號 (GAS 呼叫) ---
+
+// 年級選擇事件
+gradeSelect.addEventListener('change', function() {
+    const grade = this.value;
+    hideResult();
+    
+    if (!grade) {
+        disableControls();
+        return;
+    }
+    
+    // 從 GAS 獲取該年級的所有班級
+    fetch(`${WEB_APP_URL}?mode=config`)
+        .then(res => res.json())
+        .then(data => {
+            const gradeInfo = data.grades.find(g => g.id.toString() === grade.toString());
+            if (gradeInfo && gradeInfo.classes) {
+                renderOptions(classSelect, gradeInfo.classes, '請選擇班級');
+                seatSelect.disabled = true;
+                btnDraw.disabled = true;
+            } else {
+                alert("找不到該年級的班級資料。");
+                disableControls();
+            }
+        })
+        .catch(err => {
+            alert("載入班級資訊時發生錯誤。");
+            disableControls();
+        });
 });
 
-/*************************************************
- * 6. 🔄 清空欄位（僅清空選單，不清除結果）
- *************************************************/
-
-btnClear.addEventListener("click", () => {
-  selGrade.value = "";
-  resetClassAndSeat("請先選擇年級");
-  inputName.value = ""; // ✨ 新增：清空姓名欄位
-  // 結果區保留，老師可以回顧上一位同學的號碼
+// 班級選擇事件：載入座號和姓名
+classSelect.addEventListener('change', async function() {
+    const grade = gradeSelect.value;
+    const cls = this.value;
+    hideResult();
+    studentNameInput.value = '選擇座號後自動帶出';
+    
+    if (!grade || !cls) {
+        seatSelect.innerHTML = '<option value="">請先選擇班級</option>';
+        seatSelect.disabled = true;
+        btnDraw.disabled = true;
+        return;
+    }
+    
+    // 呼叫 GAS 獲取座號/姓名數據
+    try {
+        const url = `${WEB_APP_URL}?mode=seats&grade=${encodeURIComponent(grade)}&className=${encodeURIComponent(cls)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.ok && data.students && data.students.length > 0) {
+            renderOptions(seatSelect, data.students, '請選擇座號');
+            btnDraw.disabled = true;
+        } else {
+            seatSelect.innerHTML = '<option value="">此班無座號名單</option>';
+            seatSelect.disabled = true;
+            btnDraw.disabled = true;
+        }
+    } catch (err) {
+        alert("載入座號資料時發生錯誤。");
+        seatSelect.disabled = true;
+        btnDraw.disabled = true;
+    }
 });
 
-/*************************************************
- * 7. 啟動
- *************************************************/
+// 座號選擇事件：自動填入姓名
+seatSelect.addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    hideResult();
+    
+    if (selectedOption && selectedOption.value) {
+        const name = selectedOption.dataset.name || "";
+        studentNameInput.value = name;
+        btnDraw.disabled = false;
+    } else {
+        studentNameInput.value = '選擇座號後自動帶出';
+        btnDraw.disabled = true;
+    }
+});
 
-document.addEventListener("DOMContentLoaded", initPage);
+// --- 5. 抽籤 / 清空 ---
+
+// 抽籤按鈕事件
+btnDraw.addEventListener('click', async function() {
+    const grade = gradeSelect.value;
+    const classNum = classSelect.value;
+    const seatNum = seatSelect.value;
+    const name = studentNameInput.value;
+    
+    if (!grade || !classNum || !seatNum || !name) return;
+
+    // 顯示載入狀態
+    const originalText = this.innerHTML;
+    // 使用新的 loading spinner
+    this.innerHTML = '<span class="loading"></span> 抽籤中...'; 
+    this.disabled = true;
+    
+    // 呼叫 GAS 進行抽籤
+    try {
+        const url = `${WEB_APP_URL}?grade=${encodeURIComponent(grade)}&className=${encodeURIComponent(classNum)}&seatNo=${encodeURIComponent(seatNum)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.found) {
+            showResult(data.order, grade, classNum, seatNum, name);
+        } else {
+            alert("找不到這位同學的資料，請確認是否輸入正確。");
+            hideResult();
+        }
+    } catch (err) {
+        alert("抽籤時發生錯誤，請稍後再試。\n錯誤: " + err.message);
+        hideResult();
+    } finally {
+        this.innerHTML = originalText;
+        this.disabled = false;
+    }
+});
+
+// 清空按鈕事件
+btnClear.addEventListener('click', function() {
+    gradeSelect.value = '';
+    hideResult();
+    disableControls();
+});
+
+// 頁面啟動
+document.addEventListener('DOMContentLoaded', initPage);

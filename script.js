@@ -15,6 +15,7 @@ const pageSubtitle = document.getElementById("pageSubtitle");
 const selGrade = document.getElementById("gradeSelect");
 const selClass = document.getElementById("classSelect");
 const selSeat = document.getElementById("seatSelect");
+const inputName = document.getElementById("nameDisplay"); // ✨ 已有：姓名輸入框參照
 
 const btnDraw = document.getElementById("btnDraw");
 const btnClear = document.getElementById("btnClear");
@@ -79,6 +80,7 @@ function renderGradeOptions() {
 function resetClassAndSeat(classPlaceholderText) {
   selClass.innerHTML = `<option value="">${classPlaceholderText}</option>`;
   selSeat.innerHTML = '<option value="">請先選擇班級</option>';
+  inputName.value = ""; // ✨ 新增：清空姓名顯示
 }
 
 selGrade.addEventListener("change", () => {
@@ -106,9 +108,13 @@ selGrade.addEventListener("change", () => {
   selSeat.innerHTML = '<option value="">請先選擇班級</option>';
 });
 
+// 【已修改 selClass.addEventListener，用於載入座號和姓名數據】
 selClass.addEventListener("change", async () => {
   const grade = selGrade.value;
   const cls = selClass.value;
+  
+  // 清空姓名顯示
+  inputName.value = ""; 
 
   if (!grade || !cls) {
     selSeat.innerHTML = '<option value="">請先選擇班級</option>';
@@ -121,32 +127,52 @@ selClass.addEventListener("change", async () => {
     )}&className=${encodeURIComponent(cls)}`;
     const res = await fetch(url);
     const data = await res.json();
-
-    if (!data.ok) {
+    
+    // 檢查 API 是否成功 (注意這裡檢查 data.students)
+    if (!data.ok || !data.students) { 
       selSeat.innerHTML =
         '<option value="">座號載入失敗，請稍後再試</option>';
       return;
     }
 
-    const seats = data.seats || [];
-    if (seats.length === 0) {
+    const students = data.students || [];
+    if (students.length === 0) {
       selSeat.innerHTML =
         '<option value="">此班尚未設定座號名單</option>';
       return;
     }
 
     selSeat.innerHTML = '<option value="">請選擇座號</option>';
-    seats.forEach((s) => {
+    
+    // 遍歷學生資料，將姓名儲存在 option 的 data 屬性中
+    students.forEach((s) => {
       const opt = document.createElement("option");
-      opt.value = s;
-      opt.textContent = `${s} 號`;
+      opt.value = s.seat;
+      opt.textContent = `${s.seat} 號`;
+      opt.dataset.name = s.name; // ✨ 關鍵：將姓名儲存在 data 屬性
       selSeat.appendChild(opt);
     });
+
   } catch (err) {
     selSeat.innerHTML =
       '<option value="">座號載入失敗，請稍後再試</option>';
   }
 });
+
+
+// 【✨ 新增：座號變動時自動帶入姓名】
+selSeat.addEventListener("change", () => {
+  const selectedOption = selSeat.options[selSeat.selectedIndex];
+
+  if (selectedOption && selectedOption.value) {
+    // 從 data-name 屬性讀取姓名
+    const name = selectedOption.dataset.name || ""; 
+    inputName.value = name;
+  } else {
+    inputName.value = "";
+  }
+});
+
 
 /*************************************************
  * 5. 抽籤 / 查看結果
@@ -201,6 +227,7 @@ btnDraw.addEventListener("click", async () => {
 btnClear.addEventListener("click", () => {
   selGrade.value = "";
   resetClassAndSeat("請先選擇年級");
+  inputName.value = ""; // ✨ 新增：清空姓名欄位
   // 結果區保留，老師可以回顧上一位同學的號碼
 });
 

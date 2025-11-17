@@ -1,70 +1,98 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>上台順序抽籤系統</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>上台順序抽籤系統</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="page">
-    <div class="card">
-      
-      <div id="adminLinkContainer">
-        <a id="spreadsheetLink" 
-           href="https://docs.google.com/spreadsheets/d/1WheW_f3QDvnwS5Hsv0Eghspp6PRlJGAdau4Ka6siqqI/edit?gid=501718882#gid=501718882" 
-           target="_blank" 
-           title="管理員：前往試算表編輯">
-          ⚙️
-        </a>
-      </div>
-            <header class="header">
-        <h1 id="pageTitle">上台順序抽籤系統</h1>
-        <p id="pageSubtitle">請選擇年級、班級與座號進行抽籤</p>
-      </header>
+    <div class="page">
+        <div class="card">
+            
+            <div id="adminLinkContainer">
+                <a id="spreadsheetLink" 
+                   href="https://docs.google.com/spreadsheets/d/1WheW_f3QDvnwS5Hsv0Eghspp6PRlJGAdau4Ka6siqqI/edit?gid=501718882#gid=501718882" 
+                   target="_blank" 
+                   title="管理員：前往試算表編輯">
+                    ⚙️
+                </a>
+            </div>
+            
+            <header class="header">
+                <h1 id="pageTitle">上台順序抽籤系統</h1>
+                <p id="pageSubtitle">請選擇年級、班級與座號進行抽籤</p>
+            </header>
 
-      <main>
-        <div class="field">
-          <label for="gradeSelect">年級</label>
-          <select id="gradeSelect">
-            <option value="">請選擇年級</option>
-          </select>
-        </div>
+            <main class="form-section">
+                
+                <div class="form-group">
+                    <label for="gradeSelect">年級</label>
+                    <select id="gradeSelect" class="form-control">
+                        <option value="">請選擇年級</option>
+                    </select>
+                </div>
 
-        <div class="field">
-          <label for="classSelect">班級</label>
-          <select id="classSelect">
-            <option value="">請先選擇班級</option>
-          </select>
-        </div>
+                <div class="form-group">
+                    <label for="classSelect">班級</label>
+                    <select id="classSelect" class="form-control" disabled>
+                        <option value="">請先選擇年級</option>
+                    </select>
+                </div>
 
-        <div class="field">
-          <label for="seatSelect">座號</label>
-          <select id="seatSelect">
-            <option value="">請先選擇座號</option>
-          </select>
-        </div>
+                <div class="form-group">
+                    <label for="seatSelect">座號</label>
+                    <select id="seatSelect" class="form-control" disabled>
+                        <option value="">請先選擇班級</option>
+                    </select>
+                </div>
 
-        <div class="field" id="nameField">
-          <label for="nameDisplay">姓名</label>
-          <input type="text" id="nameDisplay" value="" readonly placeholder="請先選擇姓名" style="background-color: #f9fafb; cursor: default;" />
-        </div>
+                <div class="form-group">
+                    <label for="studentName">姓名</label>
+                    <input id="studentName" type="text" class="form-control" readonly placeholder="選擇座號後自動帶出">
+                </div>
 
-        <div class="buttons">
-          <button id="btnDraw" class="btn-main">抽籤 / 查看結果</button>
-          <button id="btnClear" class="btn-clear">🔄 清空欄位</button>
-        </div>
+                <div class="button-group">
+                    <button id="btnDraw" class="btn btn-primary" disabled> 🎲 抽籤 / 查看結果 </button>
+                    <button id="btnClear" class="btn btn-secondary"> 🔄 清空欄位 </button>
+                </div>
 
-        <section id="resultBox" class="result">
-          </section>
-      </main>
+                <div id="resultSection" class="result-section">
+                    <div class="result-header">
+                        <div class="result-number" id="drawNumber">-</div>
+                        <p class="result-text">您的上台順序</p>
+                    </div>
+                    <div class="student-info">
+                        <h3>🎯 學生資訊</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">年級</div>
+                                <div class="info-value" id="resultGrade">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">班級</div>
+                                <div class="info-value" id="resultClass">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">座號</div>
+                                <div class="info-value" id="resultSeat">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">姓名</div>
+                                <div class="info-value" id="resultName">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
 
-      <footer class="footer">
-        <p>本系統僅供校內比賽使用，如有問題請洽承辦老師。</p>
-      </footer>
-    </div>
-  </div>
-
-  <script src="script.js" defer></script>
+            <footer class="footer">
+                <p id="footerText">本系統僅供校內比賽使用，如有問題請洽承辦老師。</p>
+            </footer>
+        </div>
+    </div>
+    
+    <script src="config.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

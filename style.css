@@ -10,7 +10,8 @@ body {
   padding: 0;
   font-family: system-ui, -apple-system, "Microsoft JhengHei", "PingFang TC",
     sans-serif;
-  background: linear-gradient(135deg, #e3f2fd 0%, #f8fbff 50%, #e1f5fe 100%);
+  /* 背景使用更柔和的漸變 */
+  background: linear-gradient(135deg, #f0f4f8 0%, #ffffff 100%);
   min-height: 100vh;
 }
 
@@ -23,133 +24,137 @@ body {
   padding: 20px;
 }
 
-/* 白色卡片 - 修正：將 position: relative 合併到此處 */
+/* 白色卡片 - 增加深度和更圓潤的邊角 */
 .card {
   width: 100%;
-  max-width: 720px;
+  max-width: 600px; /* 稍微縮小最大寬度，讓內容更集中 */
   background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
-  padding: 32px 28px 24px;
-  position: relative; /* ✨ 關鍵修正：確保 Icon 可以被絕對定位 */
+  border-radius: 28px; /* 增加圓角 */
+  /* 使用更現代且柔和的陰影 */
+  box-shadow: 0 16px 32px rgba(17, 24, 39, 0.1), 0 4px 8px rgba(17, 24, 39, 0.05);
+  padding: 36px 32px 30px;
+  position: relative;
 }
 
 /* 標題區 */
 .header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px; /* 間距略微減少 */
 }
 
 .header h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 26px; /* 字體略小，更精緻 */
   font-weight: 700;
-  color: #0f172a;
+  color: #1f2937; /* 深灰 */
 }
 
 .header p {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 14px;
   color: #6b7280;
 }
 
 /* 欄位區 */
 .field {
-  margin-bottom: 16px;
+  margin-bottom: 14px; /* 間距微調 */
 }
 
 .field label {
   display: block;
-  font-size: 14px;
+  font-size: 13px; /* 標籤字體略小 */
+  font-weight: 500;
   color: #4b5563;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 /* 欄位選擇器和輸入框的基本樣式 */
 .field select,
 .field input[type="text"] {
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 16px; /* 增加內距，讓欄位看起來更高 */
   font-size: 16px;
   border-radius: 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #e5e7eb; /* 使用更淺的邊框顏色 */
   background-color: #f9fafb;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
-/* 欄位選擇器和輸入框的焦點樣式 (已移除冗餘部分) */
+/* 欄位選擇器和輸入框的焦點樣式 */
 .field select:focus,
 .field input[type="text"]:focus {
-  border-color: #3b82f6;
+  border-color: #4f46e5; /* 使用深一點的藍紫色作為焦點色 */
   background-color: #ffffff;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* 焦點光暈更明顯 */
 }
 
 /* 按鈕區 */
 .buttons {
-  margin-top: 20px;
+  margin-top: 24px; /* 間距微調 */
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* 主按鈕 */
+/* 主按鈕 - 使用較深的藍紫色 */
 .btn-main {
   width: 100%;
-  padding: 14px;
+  padding: 16px; /* 讓按鈕更高 */
   font-size: 18px;
   font-weight: 600;
-  border-radius: 14px;
+  border-radius: 16px; /* 更圓潤 */
   border: none;
   cursor: pointer;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, #4f46e5, #3730a3); /* 藍紫色漸變 */
   color: white;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.4);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-main:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.55);
 }
 
 .btn-main:active {
   transform: translateY(0);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
-/* 清空按鈕 */
+/* 清空按鈕 - 樣式更簡約 */
 .btn-clear {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 12px;
-  border: none;
+  border-radius: 14px;
+  border: 1px solid #d1d5db; /* 增加邊框 */
   cursor: pointer;
-  background: #e5e7eb;
+  background: #ffffff;
   color: #374151;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 .btn-clear:hover {
-  background-color: #d1d5db;
+  background-color: #f3f4f6;
+  transform: translateY(-1px);
 }
 
 .btn-clear:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
-/* 結果區 */
+/* 結果區 - 使用淺綠色背景 */
 .result {
-  margin-top: 20px;
-  padding: 14px 16px;
+  margin-top: 24px;
+  padding: 16px 18px;
   border-radius: 16px;
-  background-color: #ecfdf3;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-  font-size: 15px;
+  background-color: #ecfdf5; /* 淺綠色 */
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -159,17 +164,13 @@ body {
 
 /* footer */
 .footer {
-  margin-top: 18px;
+  margin-top: 20px;
   text-align: center;
   font-size: 12px;
   color: #9ca3af;
 }
 
-
-/* ======================== */
-/* 管理員連結 Icon 樣式 (新增) */
-/* ======================== */
-
+/* 管理員連結 Icon 樣式 */
 #adminLinkContainer {
   position: absolute;
   top: 20px;
@@ -181,28 +182,26 @@ body {
   display: block;
   font-size: 24px;
   text-decoration: none;
-  color: #6b7280;
-  opacity: 0.6;
+  color: #9ca3af; /* 顏色更淡 */
+  opacity: 0.7;
   transition: opacity 0.2s, color 0.2s;
 }
 
 #spreadsheetLink:hover {
   opacity: 1;
-  color: #3b82f6;
+  color: #4f46e5;
 }
-
 
 /* RWD */
 @media (max-width: 480px) {
   .card {
-    padding: 24px 18px 18px;
+    padding: 24px 20px 20px;
   }
 
   .header h1 {
-    font-size: 22px;
+    font-size: 20px;
   }
   
-  /* RWD 調整 Icon 位置 */
   #adminLinkContainer {
     top: 15px;
     right: 15px;

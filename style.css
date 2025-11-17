@@ -13,14 +13,15 @@ body {
   /* 背景使用更柔和的漸變 */
   background: linear-gradient(135deg, #f0f4f8 0%, #ffffff 100%);
   min-height: 100vh;
-}
-
-/* 置中外框 */
-.page {
-  min-height: 100vh;
+  /* 確保置中對齊 */
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 置中外框 (page 已被 body 代替，但保留 page 兼容) */
+.page {
+  width: 100%;
   padding: 20px;
 }
 
@@ -28,6 +29,7 @@ body {
 .card {
   width: 100%;
   max-width: 600px; /* 稍微縮小最大寬度，讓內容更集中 */
+  margin: auto;
   background: #ffffff;
   border-radius: 28px; /* 增加圓角 */
   /* 使用更現代且柔和的陰影 */
@@ -55,111 +57,225 @@ body {
   color: #6b7280;
 }
 
-/* 欄位區 */
-.field {
-  margin-bottom: 14px; /* 間距微調 */
+/* ============================ */
+/* 表單區塊 - 採用新的 Class 名稱 */
+/* ============================ */
+
+.form-section {
+    padding: 0; /* 主容器不加內距 */
 }
 
-.field label {
-  display: block;
-  font-size: 13px; /* 標籤字體略小 */
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 8px;
+.form-group { /* 替代原本的 .field */
+    margin-bottom: 14px; /* 間距微調 */
 }
 
-/* 欄位選擇器和輸入框的基本樣式 */
-.field select,
-.field input[type="text"] {
-  width: 100%;
-  padding: 14px 16px; /* 增加內距，讓欄位看起來更高 */
-  font-size: 16px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb; /* 使用更淺的邊框顏色 */
-  background-color: #f9fafb;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+.form-group label { /* 替代原本的 .field label */
+    display: block;
+    font-size: 13px; /* 標籤字體略小 */
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 8px;
+}
+
+/* 欄位選擇器和輸入框的基本樣式 (.form-control 替代 select/input) */
+.form-control {
+    width: 100%;
+    padding: 14px 16px; /* 增加內距，讓欄位看起來更高 */
+    font-size: 16px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb; /* 使用更淺的邊框顏色 */
+    background-color: #f9fafb;
+    outline: none;
+    transition: all 0.3s ease;
 }
 
 /* 欄位選擇器和輸入框的焦點樣式 */
-.field select:focus,
-.field input[type="text"]:focus {
-  border-color: #4f46e5; /* 使用深一點的藍紫色作為焦點色 */
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* 焦點光暈更明顯 */
+.form-control:focus {
+    border-color: #4f46e5; /* 使用深一點的藍紫色作為焦點色 */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* 焦點光暈更明顯 */
 }
 
-/* 按鈕區 */
-.buttons {
+.form-control:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* ============================ */
+/* 按鈕區塊 (.button-group) */
+/* ============================ */
+
+.button-group { /* 替代原本的 .buttons */
   margin-top: 24px; /* 間距微調 */
   display: flex;
-  flex-direction: column;
   gap: 12px;
 }
 
-/* 主按鈕 - 使用較深的藍紫色 */
-.btn-main {
-  width: 100%;
-  padding: 16px; /* 讓按鈕更高 */
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 16px; /* 更圓潤 */
-  border: none;
-  cursor: pointer;
+.btn { /* 替代原本的 .btn-main/.btn-clear */
+    flex: 1;
+    padding: 16px; 
+    border: none;
+    border-radius: 16px; 
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 主按鈕 (.btn-primary) */
+.btn-primary { 
   background: linear-gradient(135deg, #4f46e5, #3730a3); /* 藍紫色漸變 */
   color: white;
   box-shadow: 0 12px 28px rgba(79, 70, 229, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.btn-main:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 18px 36px rgba(79, 70, 229, 0.55);
 }
 
-.btn-main:active {
+.btn-primary:active {
   transform: translateY(0);
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
-/* 清空按鈕 - 樣式更簡約 */
-.btn-clear {
-  width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 14px;
-  border: 1px solid #d1d5db; /* 增加邊框 */
-  cursor: pointer;
-  background: #ffffff;
+/* 清空按鈕 (.btn-secondary) */
+.btn-secondary {
+  background: #e5e7eb;
   color: #374151;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.btn-clear:hover {
-  background-color: #f3f4f6;
+.btn-secondary:hover:not(:disabled) {
+  background-color: #d1d5db;
   transform: translateY(-1px);
 }
 
-.btn-clear:active {
+.btn-secondary:active {
   transform: translateY(0);
 }
 
-/* 結果區 - 使用淺綠色背景 */
-.result {
-  margin-top: 24px;
-  padding: 16px 18px;
-  border-radius: 16px;
-  background-color: #ecfdf5; /* 淺綠色 */
-  border: 1px solid #a7f3d0;
-  color: #065f46;
-  font-size: 16px;
-  line-height: 1.6;
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
-.result.empty {
-  display: none;
+/* Loading Spinner 樣式 */
+.loading {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 5px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================ */
+/* 結果區塊 (.result-section) */
+/* ============================ */
+
+.result-section {
+    margin-top: 24px;
+    padding: 30px;
+    background: #ecfdf5; /* 淺綠色 */
+    border-radius: 16px;
+    border: 1px solid #a7f3d0;
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.result-section.show {
+    display: block;
+    animation: slideInUp 0.5s ease;
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.result-number {
+    font-size: 56px;
+    font-weight: 800;
+    color: #4f46e5;
+    margin: 0;
+    text-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.result-text {
+    font-size: 18px;
+    color: #166534;
+    margin: 8px 0 0 0;
+    font-weight: 600;
+}
+
+/* 學生資訊卡片 */
+.student-info {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 1px solid rgba(79, 70, 229, 0.1);
+}
+
+.student-info h3 {
+    margin: 0 0 16px 0;
+    color: #1f2937;
+    font-size: 16px;
+    text-align: center;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.info-item {
+    text-align: center;
+    padding: 10px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    border: 1px solid #dcfce7;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-weight: 700;
+    color: #16a34a;
+    font-size: 15px;
 }
 
 /* footer */
@@ -170,7 +286,9 @@ body {
   color: #9ca3af;
 }
 
+/* ============================ */
 /* 管理員連結 Icon 樣式 */
+/* ============================ */
 #adminLinkContainer {
   position: absolute;
   top: 20px;
@@ -192,6 +310,7 @@ body {
   color: #4f46e5;
 }
 
+
 /* RWD */
 @media (max-width: 480px) {
   .card {
@@ -199,11 +318,24 @@ body {
   }
 
   .header h1 {
-    font-size: 20px;
+    font-size: 22px;
   }
   
+  .button-group {
+    flex-direction: column; /* 手機版按鈕垂直排列 */
+  }
+
+  /* RWD 調整 Icon 位置 */
   #adminLinkContainer {
     top: 15px;
     right: 15px;
+  }
+  
+  .info-grid {
+      grid-template-columns: 1fr 1fr; /* 手機版資訊卡片兩欄 */
+  }
+  
+  .student-info h3 {
+      font-size: 15px;
   }
 }
